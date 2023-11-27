@@ -3,13 +3,12 @@
 #
 COMPONENT_ADD_INCLUDEDIRS += \
 	inc \
-	../../../../inc \
-	../../../../port/fal/inc
+	port/fal/inc
 
 COMPONENT_SRCDIRS += \
-	../../../../src \
-	../../../../samples \
-	../../../../port/fal/src \
+	src \
+	samples \
+	port/fal/src \
 	porting
 
 
