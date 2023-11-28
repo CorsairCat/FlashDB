@@ -14,7 +14,7 @@
 
 #ifdef FDB_USING_FILE_MODE
 
-#define DB_PATH_MAX            256
+#define DB_PATH_MAX            255
 
 static void get_db_file_path(fdb_db_t db, uint32_t addr, char *path, size_t size)
 {

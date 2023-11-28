@@ -2,14 +2,14 @@
 # Component Makefile
 #
 COMPONENT_ADD_INCLUDEDIRS += \
+	porting_inc \
 	inc \
-	port/fal/inc \
-	porting_inc
+	# port/fal/inc
 
 COMPONENT_SRCDIRS += \
 	src \
 	samples \
-	port/fal/src
+	# port/fal/src
 
 
 # COMPONENT_PRIV_INCLUDEDIRS +=

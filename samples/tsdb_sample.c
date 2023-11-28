@@ -23,7 +23,7 @@
 #ifdef FDB_USING_TIMESTAMP_64BIT
 #define __PRITS "ld"
 #else
-#define __PRITS "d"
+#define __PRITS "ld"
 #endif
 
 struct env_status {
@@ -38,6 +38,7 @@ static bool set_status_cb(fdb_tsl_t tsl, void *arg);
 void tsdb_sample(fdb_tsdb_t tsdb)
 {
     struct fdb_blob blob;
+    fdb_err_t l_err;
 
     FDB_INFO("==================== tsdb_sample ====================\n");
 
@@ -47,12 +48,14 @@ void tsdb_sample(fdb_tsdb_t tsdb)
         /* append new log to TSDB */
         status.temp = 36;
         status.humi = 85;
-        fdb_tsl_append(tsdb, fdb_blob_make(&blob, &status, sizeof(status)));
+        l_err = fdb_tsl_append(tsdb, fdb_blob_make(&blob, &status, sizeof(status)));
+        if (l_err != FDB_NO_ERR) {FDB_INFO("Error %d \n", l_err);}
         FDB_INFO("append the new status.temp (%d) and status.humi (%d)\n", status.temp, status.humi);
 
         status.temp = 38;
         status.humi = 90;
         fdb_tsl_append(tsdb, fdb_blob_make(&blob, &status, sizeof(status)));
+        if (l_err != FDB_NO_ERR) {FDB_INFO("Error %d \n", l_err);}
         FDB_INFO("append the new status.temp (%d) and status.humi (%d)\n", status.temp, status.humi);
     }
 
@@ -64,7 +67,7 @@ void tsdb_sample(fdb_tsdb_t tsdb)
     { /* QUERY the TSDB by time */
         /* prepare query time (from 1970-01-01 00:00:00 to 2020-05-05 00:00:00) */
         struct tm tm_from = { .tm_year = 1970 - 1900, .tm_mon = 0, .tm_mday = 1, .tm_hour = 0, .tm_min = 0, .tm_sec = 0 };
-        struct tm tm_to = { .tm_year = 2020 - 1900, .tm_mon = 4, .tm_mday = 5, .tm_hour = 0, .tm_min = 0, .tm_sec = 0 };
+        struct tm tm_to = { .tm_year = 2025 - 1900, .tm_mon = 4, .tm_mday = 5, .tm_hour = 0, .tm_min = 0, .tm_sec = 0 };
         time_t from_time = mktime(&tm_from), to_time = mktime(&tm_to);
         size_t count;
         /* query all TSL in TSDB by time */
@@ -95,7 +98,10 @@ static bool query_cb(fdb_tsl_t tsl, void *arg)
     struct env_status status;
     fdb_tsdb_t db = arg;
 
-    fdb_blob_read((fdb_db_t) db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, &status, sizeof(status))));
+    status.temp = 2;
+    status.humi = 4;
+
+    fdb_blob_read((fdb_db_t) db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, &status, sizeof(struct env_status))));
     FDB_INFO("[query_cb] queried a TSL: time: %" __PRITS ", temp: %d, humi: %d\n", tsl->time, status.temp, status.humi);
 
     return false;
@@ -106,8 +112,11 @@ static bool query_by_time_cb(fdb_tsl_t tsl, void *arg)
     struct fdb_blob blob;
     struct env_status status;
     fdb_tsdb_t db = arg;
+    
+    status.temp = 1;
+    status.humi = 5;
 
-    fdb_blob_read((fdb_db_t) db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, &status, sizeof(status))));
+    fdb_blob_read((fdb_db_t) db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, &status, sizeof(struct env_status))));
     FDB_INFO("[query_by_time_cb] queried a TSL: time: %" __PRITS ", temp: %d, humi: %d\n", tsl->time, status.temp, status.humi);
 
     return false;
